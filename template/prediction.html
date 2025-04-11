@@ -1,193 +1,504 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Predict House Price</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet"/>
-  <style>
-    * {
-      box-sizing: border-box;
+{% extends "base.html" %}
+
+{% block content %}
+<div class="prediction-container">
+    <h1 class="page-title">Real Estate Price Prediction Tool</h1>
+    
+    <div class="prediction-card">
+        <p class="form-intro">
+            <i class="fas fa-info-circle"></i> Enter your property details below to get an estimated price prediction based on our trained machine learning model.
+        </p>
+        
+        <form id="predictionForm" class="prediction-form">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="area">
+                        <i class="fas fa-vector-square"></i> Property Area (sq.ft)
+                    </label>
+                    <input 
+                        type="number" 
+                        id="area" 
+                        name="area" 
+                        placeholder="Enter area" 
+                        min="100" 
+                        required
+                    >
+                    <small class="form-hint">Please enter a valid area (minimum 100 sq.ft)</small>
+                </div>
+                
+                <div class="form-group">
+                    <label for="bedrooms">
+                        <i class="fas fa-bed"></i> Bedrooms
+                    </label>
+                    <input 
+                        type="number" 
+                        id="bedrooms" 
+                        name="bedrooms" 
+                        placeholder="Number of bedrooms" 
+                        min="1"
+                        max="10" 
+                        required
+                    >
+                    <small class="form-hint">Enter number from 1-10</small>
+                </div>
+                
+                <div class="form-group">
+                    <label for="bathrooms">
+                        <i class="fas fa-bath"></i> Bathrooms
+                    </label>
+                    <input 
+                        type="number" 
+                        id="bathrooms" 
+                        name="bathrooms" 
+                        placeholder="Number of bathrooms" 
+                        min="1" 
+                        max="10" 
+                        required
+                    >
+                    <small class="form-hint">Enter number from 1-10</small>
+                </div>
+                
+                <div class="form-group">
+                    <label for="guestroom">
+                        <i class="fas fa-user-friends"></i> Guest Room
+                    </label>
+                    <select id="guestroom" name="guestroom" required>
+                        <option value="" disabled selected>Select option</option>
+                        <option value="yes">Yes</option>
+                        <option value="no">No</option>
+                    </select>
+                    <small class="form-hint">Does the property have a guest room?</small>
+                </div>
+                
+                <div class="form-group">
+                    <label for="basement">
+                        <i class="fas fa-home"></i> Basement
+                    </label>
+                    <select id="basement" name="basement" required>
+                        <option value="" disabled selected>Select option</option>
+                        <option value="1">Yes</option>
+                        <option value="0">No</option>
+                    </select>
+                    <small class="form-hint">Does the property have a basement?</small>
+                </div>
+                
+                <div class="form-group">
+                    <label for="parking">
+                        <i class="fas fa-car"></i> Parking Space
+                    </label>
+                    <select id="parking" name="parking" required>
+                        <option value="" disabled selected>Select option</option>
+                        <option value="1">Yes</option>
+                        <option value="0">No</option>
+                    </select>
+                    <small class="form-hint">Does the property have parking?</small>
+                </div>
+            </div>
+            
+            <button type="submit" class="predict-btn">
+                <i class="fas fa-calculator"></i> Calculate Price Estimate
+            </button>
+        </form>
+    </div>
+    
+    <div class="result-card" id="resultCard" style="display: none;">
+        <div class="result-header">
+            <i class="fas fa-chart-line"></i>
+            <h3>Price Prediction Result</h3>
+        </div>
+        <div id="resultContent" class="result-content">
+            <!-- Result will be displayed here -->
+        </div>
+        <div class="result-actions">
+            <button id="newPredictionBtn" class="secondary-btn">
+                <i class="fas fa-redo"></i> New Prediction
+            </button>
+        </div>
+    </div>
+
+    <div class="prediction-loader" id="predictionLoader" style="display: none;">
+        <div class="loader-spinner"></div>
+        <p>Calculating property price...</p>
+    </div>
+</div>
+
+<style>
+    /* Prediction page specific styles */
+    .prediction-container {
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 2rem 1rem;
     }
-
-    body {
-      margin: 0;
-      padding: 0;
-      font-family: 'Poppins', sans-serif;
-      background: url('https://images.unsplash.com/photo-1572120360610-d971b9d7767c?auto=format&fit=crop&w=1740&q=80') no-repeat center center fixed;
-      background-size: cover;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      position: relative;
+    
+    .page-title {
+        color: #2c3e50;
+        text-align: center;
+        margin-bottom: 2rem;
+        font-size: 2rem;
     }
-
-    body::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.5);
-      backdrop-filter: blur(2px);
-      z-index: 0;
+    
+    .prediction-card {
+        background: #fff;
+        border-radius: 12px;
+        padding: 2rem;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        margin-bottom: 2rem;
+        transition: all 0.3s ease;
     }
-
-    .container {
-      position: relative;
-      z-index: 1;
-      background: rgba(255, 255, 255, 0.15);
-      backdrop-filter: blur(15px);
-      border-radius: 20px;
-      padding: 30px 25px;
-      width: 90%;
-      max-width: 420px;
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
-      color: #fff;
-      animation: slideUp 0.8s ease;
+    
+    .form-intro {
+        color: #3498db;
+        margin-bottom: 1.5rem;
+        font-size: 1.1rem;
+        text-align: center;
     }
-
-    @keyframes slideUp {
-      from {
-        transform: translateY(20px);
-        opacity: 0;
-      }
-      to {
-        transform: translateY(0);
-        opacity: 1;
-      }
+    
+    .form-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 1.5rem;
     }
-
-    h2 {
-      text-align: center;
-      margin-bottom: 25px;
-      font-size: 26px;
+    
+    .form-group {
+        margin-bottom: 1rem;
     }
-
-    label {
-      margin: 15px 0 5px;
-      display: block;
-      font-weight: 500;
+    
+    .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+        color: #2c3e50;
     }
-
-    input, select {
-      width: 100%;
-      padding: 12px;
-      margin-bottom: 10px;
-      border-radius: 10px;
-      border: none;
-      font-size: 15px;
-      outline: none;
-      background-color: rgba(255, 255, 255, 0.85);
-      color: #333;
+    
+    .form-group input,
+    .form-group select {
+        width: 100%;
+        padding: 0.75rem;
+        border: 2px solid #e0e0e0;
+        border-radius: 8px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
     }
-
-    input:focus, select:focus {
-      outline: 2px solid #007BFF;
+    
+    .form-group input:focus,
+    .form-group select:focus {
+        border-color: #3498db;
+        box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        outline: none;
     }
-
-    button {
-      margin-top: 20px;
-      width: 100%;
-      padding: 14px;
-      background: linear-gradient(135deg, #007BFF, #0056b3);
-      color: white;
-      border: none;
-      border-radius: 10px;
-      font-size: 16px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: transform 0.2s, background 0.3s;
+    
+    .form-hint {
+        display: block;
+        font-size: 0.8rem;
+        color: #7f8c8d;
+        margin-top: 0.25rem;
     }
-
-    button:hover {
-      background: linear-gradient(135deg, #0056b3, #003c7e);
-      transform: scale(1.03);
+    
+    .predict-btn {
+        background: linear-gradient(135deg, #3498db, #2980b9);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        padding: 1rem 1.5rem;
+        font-size: 1.1rem;
+        font-weight: 600;
+        width: 100%;
+        margin-top: 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
     }
-
-    #result {
-      margin-top: 20px;
-      font-size: 18px;
-      font-weight: bold;
-      text-align: center;
-      color: #fff;
+    
+    .predict-btn:hover {
+        background: linear-gradient(135deg, #2980b9, #2c3e50);
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
     }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <h2>🏡 House Price Predictor</h2>
+    
+    .result-card {
+        background: linear-gradient(135deg, #f5f7fa, #e9ecef);
+        border-radius: 12px;
+        padding: 2rem;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        text-align: center;
+        max-width: 800px;
+        margin: 0 auto;
+        animation: fadeIn 0.5s ease;
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .result-header {
+        margin-bottom: 1.5rem;
+        color: #2c3e50;
+    }
+    
+    .result-header i {
+        font-size: 2.5rem;
+        color: #3498db;
+        margin-bottom: 0.5rem;
+    }
+    
+    .result-content {
+        font-size: 2rem;
+        color: #2c3e50;
+        margin: 1.5rem 0;
+        padding: 1rem;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.7);
+    }
+    
+    .price-highlight {
+        color: #2ecc71;
+        font-weight: 700;
+    }
+    
+    .price-currency {
+        font-size: 1.2rem;
+        vertical-align: top;
+    }
+    
+    .result-actions {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+        margin-top: 1.5rem;
+    }
+    
+    .secondary-btn {
+        background: white;
+        color: #3498db;
+        border: 2px solid #3498db;
+        border-radius: 8px;
+        padding: 0.75rem 1.25rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .secondary-btn:hover {
+        background: #3498db;
+        color: white;
+    }
+    
+    .prediction-loader {
+        text-align: center;
+        padding: 2rem;
+    }
+    
+    .loader-spinner {
+        border: 5px solid #f3f3f3;
+        border-top: 5px solid #3498db;
+        border-radius: 50%;
+        width: 50px;
+        height: 50px;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 1rem;
+    }
+    
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    
+    /* Form validation styles */
+    input:invalid,
+    select:invalid {
+        border-color: #e74c3c;
+    }
+    
+    input:invalid:focus,
+    select:invalid:focus {
+        border-color: #e74c3c;
+        box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.2);
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .form-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .result-actions {
+            flex-direction: column;
+        }
+    }
+</style>
 
-    <label for="area">Area (sqft):</label>
-    <input type="number" id="area" placeholder="Enter area in sqft" />
-
-    <label for="bedrooms">Bedrooms:</label>
-    <input type="number" id="bedrooms" placeholder="Number of bedrooms" />
-
-    <label for="bathrooms">Bathrooms:</label>
-    <input type="number" id="bathrooms" placeholder="Number of bathrooms" />
-
-    <label for="guestroom">Guestroom:</label>
-    <select id="guestroom">
-      <option value="yes">Yes</option>
-      <option value="no">No</option>
-    </select>
-
-    <label for="basement">Basement:</label>
-    <select id="basement">
-      <option value="yes">Yes</option>
-      <option value="no">No</option>
-    </select>
-
-    <label for="parking">Parking:</label>
-    <select id="parking">
-      <option value="yes">Yes</option>
-      <option value="no">No</option>
-    </select>
-
-    <button onclick="predictPrice()">🔍 Predict Price</button>
-
-    <div id="result"></div>
-  </div>
-
-  <script>
-    async function predictPrice() {
-      const area = document.getElementById("area").value;
-      const bedrooms = document.getElementById("bedrooms").value;
-      const bathrooms = document.getElementById("bathrooms").value;
-      const guestroom = document.getElementById("guestroom").value;
-      const basement = document.getElementById("basement").value;
-      const parking = document.getElementById("parking").value;
-
-      if (!area || !bedrooms || !bathrooms) {
-        document.getElementById("result").innerText = "⚠️ Please fill in all required fields!";
-        return;
-      }
-
-      const basementValue = basement === "yes" ? 1 : 0;
-      const parkingValue = parking === "yes" ? 1 : 0;
-
-      try {
-        const response = await fetch("http://127.0.0.1:8000/predict", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            area: parseInt(area),
-            bedrooms: parseInt(bedrooms),
-            bathrooms: parseInt(bathrooms),
-            guestroom: guestroom,
-            basement: basementValue,
-            parking: parkingValue
-          })
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const predictionForm = document.getElementById('predictionForm');
+        const resultCard = document.getElementById('resultCard');
+        const resultContent = document.getElementById('resultContent');
+        const predictionLoader = document.getElementById('predictionLoader');
+        const newPredictionBtn = document.getElementById('newPredictionBtn');
+        
+        // Initialize form validation 
+        const inputElements = predictionForm.querySelectorAll('input, select');
+        inputElements.forEach(el => {
+            el.addEventListener('input', function() {
+                this.classList.remove('error');
+                if (this.nextElementSibling && this.nextElementSibling.classList.contains('error-message')) {
+                    this.nextElementSibling.remove();
+                }
+            });
         });
-
-        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
-
-        const data = await response.json();
-        document.getElementById("result").innerText = "💰 Predicted Price: ₹" + data.predicted_price;
-      } catch (error) {
-        document.getElementById("result").innerText = "❌ Error: " + error.message;
-      }
-    }
-  </script>
-</body>
-</html>
+        
+        // Form submission handling
+        predictionForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            // Validate form
+            if (!validateForm()) return;
+            
+            // Show loader
+            predictionLoader.style.display = 'block';
+            resultCard.style.display = 'none';
+            
+            // Get form data
+            const formData = {
+                area: parseInt(document.getElementById('area').value),
+                bedrooms: parseInt(document.getElementById('bedrooms').value),
+                bathrooms: parseInt(document.getElementById('bathrooms').value),
+                guestroom: document.getElementById('guestroom').value,
+                basement: parseInt(document.getElementById('basement').value),
+                parking: parseInt(document.getElementById('parking').value)
+            };
+            
+            try {
+                // Make API request
+                const response = await fetch('/predict', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`Server error: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                // Format the price nicely with commas
+                const formatter = new Intl.NumberFormat('en-IN', {
+                    style: 'currency',
+                    currency: 'INR',
+                    maximumFractionDigits: 0
+                });
+                
+                const formattedPrice = formatter.format(data.predicted_price);
+                
+                // Display the result
+                resultContent.innerHTML = `
+                    <div class="prediction-result">
+                        <span class="price-highlight">${formattedPrice}</span>
+                    </div>
+                    <p class="prediction-details">
+                        Based on ${formData.area} sq.ft, ${formData.bedrooms} bedroom(s), ${formData.bathrooms} bathroom(s)
+                    </p>
+                `;
+                
+                // Hide loader, show result
+                predictionLoader.style.display = 'none';
+                resultCard.style.display = 'block';
+                
+                // Scroll to result
+                resultCard.scrollIntoView({ behavior: 'smooth' });
+                
+            } catch (error) {
+                // Handle errors
+                predictionLoader.style.display = 'none';
+                resultContent.innerHTML = `
+                    <div class="error-message">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <p>Sorry, we encountered an error: ${error.message}</p>
+                    </div>
+                `;
+                resultCard.style.display = 'block';
+            }
+        });
+        
+        // New prediction button handler
+        newPredictionBtn.addEventListener('click', function() {
+            resultCard.style.display = 'none';
+            predictionForm.reset();
+            predictionForm.scrollIntoView({ behavior: 'smooth' });
+        });
+        
+        
+        
+        // Form validation function
+        function validateForm() {
+            let isValid = true;
+            const area = document.getElementById('area');
+            const bedrooms = document.getElementById('bedrooms');
+            const bathrooms = document.getElementById('bathrooms');
+            const guestroom = document.getElementById('guestroom');
+            const basement = document.getElementById('basement');
+            const parking = document.getElementById('parking');
+            
+            // Clear previous errors
+            document.querySelectorAll('.error-message').forEach(el => el.remove());
+            
+            // Validate area (minimum 100 sq.ft)
+            if (!area.value || area.value < 100) {
+                showError(area, 'Area must be at least 100 sq.ft');
+                isValid = false;
+            }
+            
+            // Validate bedrooms (between 1-10)
+            if (!bedrooms.value || bedrooms.value < 1 || bedrooms.value > 10) {
+                showError(bedrooms, 'Please enter between 1-10 bedrooms');
+                isValid = false;
+            }
+            
+            // Validate bathrooms (between 1-10)
+            if (!bathrooms.value || bathrooms.value < 1 || bathrooms.value > 10) {
+                showError(bathrooms, 'Please enter between 1-10 bathrooms');
+                isValid = false;
+            }
+            
+            // Validate selections
+            if (!guestroom.value) {
+                showError(guestroom, 'Please select an option');
+                isValid = false;
+            }
+            
+            if (!basement.value) {
+                showError(basement, 'Please select an option');
+                isValid = false;
+            }
+            
+            if (!parking.value) {
+                showError(parking, 'Please select an option');
+                isValid = false;
+            }
+            
+            return isValid;
+        }
+        
+        // Helper function to display form errors
+        function showError(element, message) {
+            element.classList.add('error');
+            const errorElement = document.createElement('div');
+            errorElement.className = 'error-message';
+            errorElement.textContent = message;
+            errorElement.style.color = '#e74c3c';
+            errorElement.style.fontSize = '0.8rem';
+            errorElement.style.marginTop = '0.25rem';
+            element.parentNode.insertBefore(errorElement, element.nextSibling);
+        }
+    });
+</script>
+{% endblock %}

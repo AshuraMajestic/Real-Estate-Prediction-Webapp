@@ -17,6 +17,7 @@ from typing import Optional
 # Simple token configuration
 SECRET_KEY = "YOUR_SECRET_KEY_HERE"  # Replace with a proper secret key in production
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
+PASSWORD_RESET_EXPIRE_MINUTES = 30  # Reset tokens valid for 30 minutes
 
 # Load and prepare the data
 data = pd.read_excel(r'housingsheet.xlsx', engine='openpyxl')
@@ -38,6 +39,7 @@ model.fit(X_train, y_train)
 app = FastAPI()
 
 # Mount static files directory
+# app.mount("/static", StaticFiles(directory="static"), name="static")
 
 # Initialize templates
 templates = Jinja2Templates(directory="template")
@@ -61,6 +63,15 @@ def init_db():
     cursor.execute('''
     CREATE TABLE IF NOT EXISTS tokens (
         username TEXT PRIMARY KEY,
+        token TEXT NOT NULL,
+        expires_at TIMESTAMP NOT NULL
+    )
+    ''')
+    
+    # Store password reset tokens
+    cursor.execute('''
+    CREATE TABLE IF NOT EXISTS password_reset_tokens (
+        email TEXT PRIMARY KEY,
         token TEXT NOT NULL,
         expires_at TIMESTAMP NOT NULL
     )
@@ -100,7 +111,7 @@ class HouseInput(BaseModel):
 # OAuth2 scheme
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login", auto_error=False)
 
-# Helper functions for authentication (replacing jose/bcrypt)
+# Helper functions for authentication
 def create_access_token(username: str):
     # Generate a random token
     token = secrets.token_hex(32)
@@ -124,6 +135,46 @@ def create_access_token(username: str):
     conn.close()
     
     return token
+
+def create_password_reset_token(email: str):
+    # Generate a random token
+    token = secrets.token_hex(32)
+    
+    # Calculate expiration time
+    expires_at = datetime.utcnow() + timedelta(minutes=PASSWORD_RESET_EXPIRE_MINUTES)
+    
+    # Store the token in the database
+    conn = sqlite3.connect('users.db')
+    cursor = conn.cursor()
+    
+    # Remove any existing reset tokens for this email
+    cursor.execute("DELETE FROM password_reset_tokens WHERE email = ?", (email,))
+    
+    # Insert the new token
+    cursor.execute(
+        "INSERT INTO password_reset_tokens (email, token, expires_at) VALUES (?, ?, ?)",
+        (email, token, expires_at)
+    )
+    conn.commit()
+    conn.close()
+    
+    return token
+
+def verify_password_reset_token(token: str):
+    conn = sqlite3.connect('users.db')
+    cursor = conn.cursor()
+    
+    # Check if token exists and is not expired
+    cursor.execute(
+        "SELECT email FROM password_reset_tokens WHERE token = ? AND expires_at > ?", 
+        (token, datetime.utcnow())
+    )
+    result = cursor.fetchone()
+    conn.close()
+    
+    if result:
+        return result[0]  # Return the email associated with this token
+    return None
 
 def verify_token(token: str):
     conn = sqlite3.connect('users.db')
@@ -159,6 +210,7 @@ def verify_password(plain_password: str, stored_hash: str, salt: str):
     # Compare the hashes
     return password_hash == stored_hash
 
+# Updated authentication dependency
 async def get_current_user(request: Request):
     token = request.cookies.get("access_token")
     if token is None:
@@ -169,12 +221,6 @@ async def get_current_user(request: Request):
         token = token[7:]
 
     user = verify_token(token)
-    if user is None:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Could not validate credentials",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
     return user
 
 def get_user_by_username(username: str):
@@ -182,6 +228,17 @@ def get_user_by_username(username: str):
     conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM users WHERE username = ?", (username,))
+    user = cursor.fetchone()
+    conn.close()
+    if user:
+        return dict(user)
+    return None
+
+def get_user_by_email(email: str):
+    conn = sqlite3.connect('users.db')
+    conn.row_factory = sqlite3.Row
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM users WHERE email = ?", (email,))
     user = cursor.fetchone()
     conn.close()
     if user:
@@ -196,24 +253,44 @@ def authenticate_user(username: str, password: str):
         return False
     return user
 
+def update_user_password(email: str, new_password: str):
+    # Hash the new password
+    hashed_password, salt = get_password_hash(new_password)
+    
+    # Update in the database
+    conn = sqlite3.connect('users.db')
+    cursor = conn.cursor()
+    cursor.execute(
+        "UPDATE users SET password = ?, salt = ? WHERE email = ?",
+        (hashed_password, salt, email)
+    )
+    conn.commit()
+    
+    # Remove the reset token
+    cursor.execute("DELETE FROM password_reset_tokens WHERE email = ?", (email,))
+    conn.commit()
+    conn.close()
+    
+    return True
+
 # Routes
 @app.get('/', response_class=HTMLResponse)
 async def home(request: Request):
-    user =await get_current_user(request)
+    user = await get_current_user(request)
     return templates.TemplateResponse("index.html", {"request": request, "user": user})
 
 @app.get('/login', response_class=HTMLResponse)
 async def login_page(request: Request):
-    user =await get_current_user(request)
+    user = await get_current_user(request)
     if user:
-        response = RedirectResponse(url="/", status_code=status.HTTP_303_SEE_OTHER)
+        return RedirectResponse(url="/", status_code=status.HTTP_303_SEE_OTHER)
     return templates.TemplateResponse("login.html", {"request": request})
 
 @app.get('/signup', response_class=HTMLResponse)
 async def signup_page(request: Request):
-    user =await get_current_user(request)
+    user = await get_current_user(request)
     if user:
-        response = RedirectResponse(url="/", status_code=status.HTTP_303_SEE_OTHER)
+        return RedirectResponse(url="/", status_code=status.HTTP_303_SEE_OTHER)
     return templates.TemplateResponse("signup.html", {"request": request})
 
 @app.post('/signup')
@@ -283,21 +360,101 @@ async def logout():
     response.delete_cookie(key="access_token")
     return response
 
+# Forgot password routes
+@app.get('/forgot-password', response_class=HTMLResponse)
+async def forgot_password_page(request: Request):
+    user = await get_current_user(request)
+    if user:
+        return RedirectResponse(url="/", status_code=status.HTTP_303_SEE_OTHER)
+    return templates.TemplateResponse("forgot_password.html", {"request": request})
+
+@app.post('/forgot-password')
+async def forgot_password(request: Request, email: str = Form(...)):
+    # Check if email exists
+    user = get_user_by_email(email)
+    
+    # Always show success message even if email doesn't exist (for security)
+    if user:
+        # Generate password reset token
+        reset_token = create_password_reset_token(email)
+        
+        # In a real application, you would send an email here
+        # For demonstration, we'll just print the reset link
+        reset_link = f"/reset-password?token={reset_token}"
+        print(f"Password reset link: {reset_link}")
+    
+    return templates.TemplateResponse(
+        "forgot_password_confirmation.html", 
+        {"request": request, "email": email}
+    )
+
+@app.get('/reset-password', response_class=HTMLResponse)
+async def reset_password_page(request: Request, token: str):
+    # Verify token is valid
+    email = verify_password_reset_token(token)
+    if not email:
+        # Token invalid or expired
+        return templates.TemplateResponse(
+            "reset_password_error.html", 
+            {"request": request, "error": "Invalid or expired reset link"}
+        )
+    
+    return templates.TemplateResponse(
+        "reset_password.html", 
+        {"request": request, "token": token}
+    )
+
+@app.post('/reset-password')
+async def reset_password(
+    request: Request,
+    token: str = Form(...),
+    password: str = Form(...),
+    confirm_password: str = Form(...)
+):
+    # Verify token is valid
+    email = verify_password_reset_token(token)
+    if not email:
+        # Token invalid or expired
+        return templates.TemplateResponse(
+            "reset_password_error.html", 
+            {"request": request, "error": "Invalid or expired reset link"}
+        )
+    
+    # Check passwords match
+    if password != confirm_password:
+        return templates.TemplateResponse(
+            "reset_password.html", 
+            {"request": request, "token": token, "error": "Passwords do not match"}
+        )
+    
+    # Update password
+    update_user_password(email, password)
+    
+    # Redirect to login with success message
+    return templates.TemplateResponse(
+        "login.html", 
+        {"request": request, "success": "Password has been reset successfully. Please login."}
+    )
+
+# Updated to use request-based authentication
 @app.get('/predication', response_class=HTMLResponse)
-async def prediction_form(request: Request, current_user: dict = Depends(get_current_user)):
-    if current_user is None:
+async def prediction_form(request: Request):
+    user = await get_current_user(request)
+    if user is None:
         return RedirectResponse(url="/login", status_code=status.HTTP_303_SEE_OTHER)
-    return templates.TemplateResponse("prediction.html", {"request": request, "user": current_user})
+    return templates.TemplateResponse("prediction.html", {"request": request, "user": user})
 
 @app.get('/About us', response_class=HTMLResponse)
 async def about(request: Request):
-    user =await get_current_user(request)
+    user = await get_current_user(request)
     # No authentication needed for about page
-    return templates.TemplateResponse("aboutus.html", {"request": request,"user":user})
+    return templates.TemplateResponse("aboutus.html", {"request": request, "user": user})
 
+# Updated to use request parameter for authentication 
 @app.post('/predict')
-async def predict_price(house: HouseInput, current_user: dict = Depends(get_current_user)):
-    if current_user is None:
+async def predict_price(request: Request, house: HouseInput):
+    user = await get_current_user(request)
+    if user is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="You must be logged in to use this feature",
@@ -315,4 +472,4 @@ async def predict_price(house: HouseInput, current_user: dict = Depends(get_curr
         raise HTTPException(status_code=500, detail=str(e))
 
 if __name__ == "__main__":
-   uvicorn.run("script:app", host="0.0.0.0", port=8000, reload=True)
+    uvicorn.run("script:app", host="0.0.0.0", port=8000, reload=True)

@@ -1,115 +1,296 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>About Us</title>
-    <style>
-        body {
-            font-family: 'Poppins', sans-serif;
-            background-color: #f9f9f9;
-            margin: 0;
-            padding: 0;
-        }
+{% extends "base.html" %}
 
-        header {
-            display: flex;
-            justify-content: flex-end;
-            padding: 15px;
-            background-color: #ffffff;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-        }
+{% block content %}
+<div class="about-container">
+    <div class="hero-section">
+        <h1 class="page-title">About Us</h1>
+        <p class="subtitle">Revolutionizing Real Estate Decisions with Data-Driven Insights</p>
+    </div>
 
-        .nav-button {
-            margin-left: 20px;
-            padding: 12px 24px;
-            text-decoration: none;
-            color: white;
-            background: linear-gradient(135deg, #007BFF, #0056b3);
-            border: none;
-            border-radius: 25px;
-            font-size: 16px;
-            font-weight: bold;
-            transition: all 0.3s ease;
-            cursor: pointer;
-        }
-
-        .nav-button:hover {
-            background: linear-gradient(135deg, #0056b3, #003c7e);
-            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3);
-        }
-
-        .about-container {
-            max-width: 1200px;
-            margin: 50px auto;
-            padding: 20px;
-            background-color: white;
-            border-radius: 15px;
-            box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
-        }
-
-        h1 {
-            text-align: center;
-            margin-bottom: 20px;
-            color: #0056b3;
-        }
-
-        h2 {
-            color: #007BFF;
-            margin-bottom: 10px;
-        }
-
-        p {
-            color: #333333;
-            font-size: 16px;
-            line-height: 1.8;
-        }
-
-        .vision, .mission, .features {
-            margin-bottom: 30px;
-        }
-
-        .features ul {
-            list-style-type: disc;
-            margin-left: 40px;
-            font-size: 16px;
-        }
-
-        .features ul li {
-            margin-bottom: 10px;
-        }
-    </style>
-</head>
-<body>
-
-    <div class="about-container">
-        <h1>About Us</h1>
-        <div class="vision">
+    <div class="about-grid">
+        <div class="about-card vision-card">
+            <div class="card-icon">
+                <i class="fas fa-eye"></i>
+            </div>
             <h2>Our Vision</h2>
             <p>
-                At Real Estate Price Prediction System, our vision is to revolutionize the real estate industry by leveraging cutting-edge AI and data analytics. We aim to empower individuals, property investors, and agencies with accurate insights to make informed decisions.
+                At Real Estate Price Predictor, our vision is to transform how people make property decisions by harnessing the power of advanced machine learning and comprehensive market data. We aim to create a future where accurate property valuations are accessible to everyone, eliminating uncertainty from real estate transactions.
             </p>
         </div>
 
-        <div class="mission">
+        <div class="about-card mission-card">
+            <div class="card-icon">
+                <i class="fas fa-bullseye"></i>
+            </div>
             <h2>Our Mission</h2>
             <p>
-                Our mission is to simplify real estate pricing for everyone. With user-friendly features and state-of-the-art technology, we strive to bridge the gap between market trends and consumer needs. We're committed to fostering transparency and trust within the real estate domain.
+                Our mission is to simplify real estate pricing through intuitive technology and precise algorithms. We're committed to building trust in the market by providing transparent, data-driven predictions that help buyers, sellers, and investors make confident decisions about their property investments.
             </p>
         </div>
+    </div>
 
-        <div class="features">
-            <h2>Key Features</h2>
-            <ul>
-                <li>Real-time property price prediction based on crucial factors like area, bedrooms, bathrooms, parking, guestroom, basement, and market trends.</li>
-                <li>Interactive tools for comparing properties and analyzing historical pricing trends.</li>
-                <li>Secure and personalized user profiles for storing preferences and tracking favorite listings.</li>
-                <li>A seamless user experience powered by AI-driven accuracy and reliability.</li>
-            </ul>
+    <div class="features-section">
+        <h2 class="section-title"><i class="fas fa-star"></i> What Sets Us Apart</h2>
+        
+        <div class="features-grid">
+            <div class="feature-item">
+                <div class="feature-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <h3>Advanced Prediction Model</h3>
+                <p>Our proprietary algorithm analyzes multiple factors including area, bedrooms, bathrooms, and amenities to deliver accurate property valuations based on current market trends.</p>
+            </div>
+            
+            <div class="feature-item">
+                <div class="feature-icon">
+                    <i class="fas fa-database"></i>
+                </div>
+                <h3>Comprehensive Data Analysis</h3>
+                <p>We leverage extensive historical data and real-time market insights to provide predictions that reflect true market conditions and property values.</p>
+            </div>
+            
+            <div class="feature-item">
+                <div class="feature-icon">
+                    <i class="fas fa-user-shield"></i>
+                </div>
+                <h3>Secure & Personalized</h3>
+                <p>Your data security is our priority. We offer secure user profiles that allow you to save preferences and track your property valuation history.</p>
+            </div>
+            
+            <div class="feature-item">
+                <div class="feature-icon">
+                    <i class="fas fa-laptop-code"></i>
+                </div>
+                <h3>User-Friendly Interface</h3>
+                <p>Our intuitive platform makes it easy for anyone to get property valuations quickly, without requiring technical expertise or complex inputs.</p>
+            </div>
         </div>
     </div>
-</body>
-</html>
+
+    <div class="team-section">
+        <h2 class="section-title"><i class="fas fa-users"></i> Our Team</h2>
+        <p class="team-intro">
+            We're a dedicated group of data scientists, real estate experts, and technology enthusiasts committed to making property valuation accessible, accurate, and transparent for everyone.
+        </p>
+        
+        <div class="cta-box">
+            <h3>Ready to predict your property's value?</h3>
+            <p>Try our prediction tool now and get instant insights into your property's market worth.</p>
+            <a href="/predication" class="cta-button">
+                <i class="fas fa-calculator"></i> Get Price Prediction
+            </a>
+        </div>
+    </div>
+</div>
+
+<style>
+    .about-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem 1rem 4rem;
+    }
+    
+    .hero-section {
+        text-align: center;
+        margin-bottom: 3rem;
+        padding: 3rem 1rem;
+        background: linear-gradient(135deg, #f5f7fa 0%, #e9ecef 100%);
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+    
+    .page-title {
+        color: #2c3e50;
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+    }
+    
+    .subtitle {
+        color: #3498db;
+        font-size: 1.2rem;
+        max-width: 800px;
+        margin: 0 auto;
+    }
+    
+    .about-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+        margin-bottom: 3rem;
+    }
+    
+    .about-card {
+        background: #fff;
+        border-radius: 12px;
+        padding: 2rem;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .about-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    }
+    
+    .card-icon {
+        font-size: 2rem;
+        color: #3498db;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 70px;
+        width: 70px;
+        border-radius: 50%;
+        background: rgba(52, 152, 219, 0.1);
+    }
+    
+    .about-card h2 {
+        color: #2c3e50;
+        margin-bottom: 1rem;
+        font-size: 1.5rem;
+    }
+    
+    .about-card p {
+        color: #7f8c8d;
+        line-height: 1.7;
+    }
+    
+    .features-section {
+        margin-bottom: 3rem;
+        padding: 2rem;
+        background-color: #fff;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+    
+    .section-title {
+        color: #2c3e50;
+        font-size: 1.8rem;
+        margin-bottom: 2rem;
+        text-align: center;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+    
+    .section-title i {
+        color: #3498db;
+    }
+    
+    .features-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 2rem;
+    }
+    
+    .feature-item {
+        padding: 1.5rem;
+        border-radius: 10px;
+        background: linear-gradient(135deg, #f5f7fa 0%, #e9ecef 100%);
+        transition: transform 0.3s ease;
+    }
+    
+    .feature-item:hover {
+        transform: translateY(-5px);
+    }
+    
+    .feature-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 60px;
+        width: 60px;
+        border-radius: 50%;
+        background: rgba(52, 152, 219, 0.9);
+        color: white;
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+    }
+    
+    .feature-item h3 {
+        color: #2c3e50;
+        margin-bottom: 0.75rem;
+        font-size: 1.2rem;
+    }
+    
+    .feature-item p {
+        color: #7f8c8d;
+        font-size: 0.95rem;
+        line-height: 1.6;
+    }
+    
+    .team-section {
+        text-align: center;
+        padding: 2rem;
+        background-color: #fff;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+    
+    .team-intro {
+        max-width: 800px;
+        margin: 0 auto 2rem;
+        color: #7f8c8d;
+        line-height: 1.7;
+    }
+    
+    .cta-box {
+        margin-top: 3rem;
+        padding: 2rem;
+        background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+        border-radius: 12px;
+        color: white;
+        text-align: center;
+    }
+    
+    .cta-box h3 {
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+    }
+    
+    .cta-box p {
+        margin-bottom: 1.5rem;
+        color: rgba(255, 255, 255, 0.9);
+    }
+    
+    .cta-button {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: white;
+        color: #3498db;
+        padding: 0.75rem 1.5rem;
+        border-radius: 30px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+    
+    .cta-button:hover {
+        background: rgba(255, 255, 255, 0.9);
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .about-grid, .features-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .hero-section {
+            padding: 2rem 1rem;
+        }
+        
+        .page-title {
+            font-size: 2rem;
+        }
+        
+        .subtitle {
+            font-size: 1rem;
+        }
+    }
+</style>
+{% endblock %}
