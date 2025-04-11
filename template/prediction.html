@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Predict House Price</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet"/>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Poppins', sans-serif;
+      background: url('https://images.unsplash.com/photo-1572120360610-d971b9d7767c?auto=format&fit=crop&w=1740&q=80') no-repeat center center fixed;
+      background-size: cover;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      position: relative;
+    }
+
+    body::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(2px);
+      z-index: 0;
+    }
+
+    .container {
+      position: relative;
+      z-index: 1;
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(15px);
+      border-radius: 20px;
+      padding: 30px 25px;
+      width: 90%;
+      max-width: 420px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+      color: #fff;
+      animation: slideUp 0.8s ease;
+    }
+
+    @keyframes slideUp {
+      from {
+        transform: translateY(20px);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 25px;
+      font-size: 26px;
+    }
+
+    label {
+      margin: 15px 0 5px;
+      display: block;
+      font-weight: 500;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 10px;
+      border-radius: 10px;
+      border: none;
+      font-size: 15px;
+      outline: none;
+      background-color: rgba(255, 255, 255, 0.85);
+      color: #333;
+    }
+
+    input:focus, select:focus {
+      outline: 2px solid #007BFF;
+    }
+
+    button {
+      margin-top: 20px;
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, #007BFF, #0056b3);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s, background 0.3s;
+    }
+
+    button:hover {
+      background: linear-gradient(135deg, #0056b3, #003c7e);
+      transform: scale(1.03);
+    }
+
+    #result {
+      margin-top: 20px;
+      font-size: 18px;
+      font-weight: bold;
+      text-align: center;
+      color: #fff;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>🏡 House Price Predictor</h2>
+
+    <label for="area">Area (sqft):</label>
+    <input type="number" id="area" placeholder="Enter area in sqft" />
+
+    <label for="bedrooms">Bedrooms:</label>
+    <input type="number" id="bedrooms" placeholder="Number of bedrooms" />
+
+    <label for="bathrooms">Bathrooms:</label>
+    <input type="number" id="bathrooms" placeholder="Number of bathrooms" />
+
+    <label for="guestroom">Guestroom:</label>
+    <select id="guestroom">
+      <option value="yes">Yes</option>
+      <option value="no">No</option>
+    </select>
+
+    <label for="basement">Basement:</label>
+    <select id="basement">
+      <option value="yes">Yes</option>
+      <option value="no">No</option>
+    </select>
+
+    <label for="parking">Parking:</label>
+    <select id="parking">
+      <option value="yes">Yes</option>
+      <option value="no">No</option>
+    </select>
+
+    <button onclick="predictPrice()">🔍 Predict Price</button>
+
+    <div id="result"></div>
+  </div>
+
+  <script>
+    async function predictPrice() {
+      const area = document.getElementById("area").value;
+      const bedrooms = document.getElementById("bedrooms").value;
+      const bathrooms = document.getElementById("bathrooms").value;
+      const guestroom = document.getElementById("guestroom").value;
+      const basement = document.getElementById("basement").value;
+      const parking = document.getElementById("parking").value;
+
+      if (!area || !bedrooms || !bathrooms) {
+        document.getElementById("result").innerText = "⚠️ Please fill in all required fields!";
+        return;
+      }
+
+      const basementValue = basement === "yes" ? 1 : 0;
+      const parkingValue = parking === "yes" ? 1 : 0;
+
+      try {
+        const response = await fetch("http://127.0.0.1:8000/predict", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            area: parseInt(area),
+            bedrooms: parseInt(bedrooms),
+            bathrooms: parseInt(bathrooms),
+            guestroom: guestroom,
+            basement: basementValue,
+            parking: parkingValue
+          })
+        });
+
+        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+
+        const data = await response.json();
+        document.getElementById("result").innerText = "💰 Predicted Price: ₹" + data.predicted_price;
+      } catch (error) {
+        document.getElementById("result").innerText = "❌ Error: " + error.message;
+      }
+    }
+  </script>
+</body>
+</html>
