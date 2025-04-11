@@ -16,7 +16,37 @@
   </div>
   <div class="hero-image">
     <div class="image-container">
-      <i class="fas fa-chart-line"></i>
+      <img src="https://cdn.pixabay.com/photo/2018/01/29/15/20/real-estate-3116341_1280.jpg" alt="Real Estate Chart" />
+    </div>
+  </div>
+</section>
+
+<section class="property-showcase">
+  <h2>Discover Property Insights</h2>
+  <div class="grid-container">
+    <div class="grid-item">
+      <img src="https://tse4.mm.bing.net/th?id=OIP.j-5cQUl0LfYwKH_iuC1qowHaFj&pid=Api&P=0&h=300" alt="Luxury Home" />
+      <div class="overlay">
+        <span>Luxury Homes</span>
+      </div>
+    </div>
+    <div class="grid-item">
+      <img src="https://tse4.mm.bing.net/th?id=OIP.uRoJw-zQE8mSgBbm4lXXRgHaFo&pid=Api&P=0&h=300" alt="Urban Apartments" />
+      <div class="overlay">
+        <span>Urban Apartments</span>
+      </div>
+    </div>
+    <div class="grid-item">
+      <img src="https://tse4.mm.bing.net/th?id=OIP.NPh9tM0HgpC-CmOWJg0BogHaFj&pid=Api&P=0&h=300" alt="Suburban Houses" />
+      <div class="overlay">
+        <span>Suburban Houses</span>
+      </div>
+    </div>
+    <div class="grid-item">
+      <img src="https://tse2.mm.bing.net/th?id=OIP.qOhLUJ0bLLTCEk0aOI5IPwHaFj&pid=Api&P=0&h=300" alt="Investment Properties" />
+      <div class="overlay">
+        <span>Investment Properties</span>
+      </div>
     </div>
   </div>
 </section>
@@ -75,17 +105,73 @@
   </div>
 </section>
 
+<section class="advanced-features">
+  <h2>Advanced Features</h2>
+  <div class="function-items">
+    <div class="function-item">
+      <h3>Real-Time Price Prediction</h3>
+      <p>Get instant property price predictions based on AI analysis.</p>
+    </div>
+    <div class="function-item">
+      <h3>Interactive Price Trends</h3>
+      <p>Visualize historical price trends with interactive charts.</p>
+    </div>
+    <div class="function-item">
+      <h3>Compare Properties</h3>
+      <p>Analyze different properties side by side for better decisions.</p>
+    </div>
+    <div class="function-item">
+      <h3>Secure User Profiles</h3>
+      <p>Save searches, favorite listings, and get personalized insights.</p>
+    </div>
+  </div>
+</section>
+
 <style>
+  /* Base Styles */
+  body {
+    font-family: 'Poppins', sans-serif;
+    background-color: #f9f9f9;
+    margin: 0;
+    padding: 0;
+    color: #2c3e50;
+  }
+
+  section {
+    margin-bottom: 60px;
+  }
+
+  h2 {
+    font-size: 32px;
+    color: #2c3e50;
+    margin-bottom: 40px;
+    position: relative;
+    padding-bottom: 15px;
+    text-align: center;
+  }
+
+  h2:after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100px;
+    height: 3px;
+    background-color: #3498db;
+  }
+
   /* Hero Section */
   .hero {
     display: flex;
     flex-direction: row;
     align-items: center;
     padding: 80px 40px;
-    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    background: linear-gradient(135deg, #e0f7fa 0%, #b3e5fc 100%);
     border-radius: 20px;
     margin-bottom: 50px;
     overflow: hidden;
+    box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.1);
   }
 
   .hero-content {
@@ -155,44 +241,70 @@
   }
 
   .image-container {
-    width: 300px;
-    height: 300px;
-    background-color: #3498db;
-    border-radius: 50%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    box-shadow: 0 15px 30px rgba(52, 152, 219, 0.3);
+    width: 400px;
+    height: 320px;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
   }
 
-  .image-container i {
-    font-size: 120px;
+  .image-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* Property Showcase */
+  .property-showcase {
+    padding: 60px 0;
+    text-align: center;
+  }
+
+  .grid-container {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: repeat(2, 1fr);
+    gap: 20px;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  .grid-item {
+    border-radius: 15px;
+    overflow: hidden;
+    transition: transform 0.4s ease, box-shadow 0.4s ease;
+    position: relative;
+    height: 220px;
+  }
+
+  .grid-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .grid-item:hover {
+    transform: scale(1.05);
+    box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.2);
+  }
+
+  .grid-item .overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(0, 0, 0, 0.6);
     color: white;
+    padding: 12px;
+    font-weight: 600;
   }
 
   /* Features Section */
   .features {
     padding: 60px 0;
     text-align: center;
-  }
-
-  .features h2 {
-    font-size: 32px;
-    color: #2c3e50;
-    margin-bottom: 48px;
-    position: relative;
-    padding-bottom: 15px;
-  }
-
-  .features h2:after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 100px;
-    height: 3px;
-    background-color: #3498db;
+    background-color: #f8f9fa;
+    border-radius: 20px;
   }
 
   .feature-cards {
@@ -249,30 +361,10 @@
 
   /* How It Works Section */
   .how-it-works {
-    padding: 70px 0;
-    background-color: #f8f9fa;
+    padding: 70px 40px;
+    background-color: #ffffff;
     border-radius: 20px;
-    margin-top: 50px;
-  }
-
-  .how-it-works h2 {
-    text-align: center;
-    font-size: 32px;
-    color: #2c3e50;
-    margin-bottom: 48px;
-    position: relative;
-    padding-bottom: 15px;
-  }
-
-  .how-it-works h2:after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 100px;
-    height: 3px;
-    background-color: #3498db;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
   }
 
   .steps {
@@ -318,6 +410,47 @@
     line-height: 1.6;
   }
 
+  /* Advanced Features Section */
+  .advanced-features {
+    padding: 60px 40px;
+    background-color: #f8f9fa;
+    border-radius: 20px;
+  }
+
+  .function-items {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .function-item {
+    flex: 1;
+    min-width: 280px;
+    background: white;
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .function-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+  }
+
+  .function-item h3 {
+    font-size: 20px;
+    color: #2c3e50;
+    margin-bottom: 12px;
+  }
+
+  .function-item p {
+    color: #505962;
+    line-height: 1.6;
+  }
+
   /* Responsive Styles */
   @media screen and (max-width: 992px) {
     .hero {
@@ -334,8 +467,17 @@
       justify-content: center;
     }
 
+    .grid-container {
+      grid-template-columns: 1fr;
+      grid-template-rows: repeat(4, 200px);
+    }
+
     .steps {
       justify-content: center;
+    }
+
+    .function-item {
+      min-width: 100%;
     }
   }
 
@@ -352,8 +494,12 @@
       font-size: 16px;
     }
 
-    .features h2, .how-it-works h2 {
+    h2 {
       font-size: 28px;
+    }
+
+    .step {
+      min-width: 100%;
     }
   }
 </style>

@@ -159,14 +159,15 @@ def verify_password(plain_password: str, stored_hash: str, salt: str):
     # Compare the hashes
     return password_hash == stored_hash
 
-async def get_current_user(token: str = Depends(oauth2_scheme)):
+async def get_current_user(request: Request):
+    token = request.cookies.get("access_token")
     if token is None:
         return None
-    
-    # Extract token from "Bearer {token}"
+
+    # Optional: remove "Bearer " prefix
     if token.startswith("Bearer "):
-        token = token.split(" ")[1]
-    
+        token = token[7:]
+
     user = verify_token(token)
     if user is None:
         raise HTTPException(
@@ -197,15 +198,22 @@ def authenticate_user(username: str, password: str):
 
 # Routes
 @app.get('/', response_class=HTMLResponse)
-def home(request: Request):
-    return templates.TemplateResponse("home.html", {"request": request})
+async def home(request: Request):
+    user =await get_current_user(request)
+    return templates.TemplateResponse("index.html", {"request": request, "user": user})
 
 @app.get('/login', response_class=HTMLResponse)
-def login_page(request: Request):
+async def login_page(request: Request):
+    user =await get_current_user(request)
+    if user:
+        response = RedirectResponse(url="/", status_code=status.HTTP_303_SEE_OTHER)
     return templates.TemplateResponse("login.html", {"request": request})
 
 @app.get('/signup', response_class=HTMLResponse)
-def signup_page(request: Request):
+async def signup_page(request: Request):
+    user =await get_current_user(request)
+    if user:
+        response = RedirectResponse(url="/", status_code=status.HTTP_303_SEE_OTHER)
     return templates.TemplateResponse("signup.html", {"request": request})
 
 @app.post('/signup')
@@ -282,9 +290,10 @@ async def prediction_form(request: Request, current_user: dict = Depends(get_cur
     return templates.TemplateResponse("prediction.html", {"request": request, "user": current_user})
 
 @app.get('/About us', response_class=HTMLResponse)
-def about(request: Request):
+async def about(request: Request):
+    user =await get_current_user(request)
     # No authentication needed for about page
-    return templates.TemplateResponse("aboutus.html", {"request": request})
+    return templates.TemplateResponse("aboutus.html", {"request": request,"user":user})
 
 @app.post('/predict')
 async def predict_price(house: HouseInput, current_user: dict = Depends(get_current_user)):
