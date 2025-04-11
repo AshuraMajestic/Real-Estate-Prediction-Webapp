@@ -1,109 +1,188 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Login</title>
-  <style>
-    * {
-      box-sizing: border-box;
-      font-family: 'Poppins', sans-serif;
-    }
+{% extends "base.html" %}
 
-    body {
-      margin: 0;
-      padding: 0;
-      background-color: #f2f2f2;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-    }
+{% block content %}
+<div class="login-container">
+  <h2>Welcome Back</h2>
+  
+  {% if error %}
+  <div class="error-message">
+    <p>{{ error }}</p>
+  </div>
+  {% endif %}
+  
+  <form action="/login" method="post">
+    <div class="form-group">
+      <label for="username">Username</label>
+      <div class="input-with-icon">
+        <i class="fas fa-user"></i>
+        <input type="text" id="username" name="username" placeholder="Enter your username" required>
+      </div>
+    </div>
 
-    .login-container {
-      background-color: #ffffff;
-      padding: 40px 30px;
-      border-radius: 15px;
-      box-shadow: 0px 10px 25px rgba(0, 0, 0, 0.1);
-      width: 100%;
-      max-width: 400px;
-      border: 1px solid #ddd;
-    }
-
-    .login-container h2 {
-      text-align: center;
-      margin-bottom: 30px;
-      color: #007BFF;
-    }
-
-    label {
-      font-weight: 500;
-      margin-bottom: 8px;
-      display: block;
-      color: #333;
-    }
-
-    input {
-      width: 100%;
-      padding: 12px;
-      margin-bottom: 20px;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      font-size: 14px;
-    }
-
-    .btn-login {
-      width: 100%;
-      padding: 12px;
-      background: linear-gradient(135deg, #007BFF, #0056b3);
-      color: #fff;
-      font-weight: bold;
-      font-size: 16px;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
-
-    .btn-login:hover {
-      background: linear-gradient(135deg, #0056b3, #003c7e);
-    }
-
-    .forgot-link {
-      display: block;
-      text-align: center;
-      margin-top: 15px;
-    }
-
-    .forgot-link a {
-      text-decoration: none;
-      color: #007BFF;
-      font-weight: 500;
-    }
-
-    .forgot-link a:hover {
-      text-decoration: underline;
-    }
-  </style>
-</head>
-<body>
-
-  <div class="login-container">
-    <h2>Login</h2>
-    <form action="/login" method="post">
-      <label for="username">Username or Email</label>
-      <input type="text" id="username" name="username" placeholder="Enter your username or email" required>
-
+    <div class="form-group">
       <label for="password">Password</label>
-      <input type="password" id="password" name="password" placeholder="Enter your password" required>
+      <div class="input-with-icon">
+        <i class="fas fa-lock"></i>
+        <input type="password" id="password" name="password" placeholder="Enter your password" required>
+      </div>
+    </div>
 
-      <button type="submit" class="btn-login">Login</button>
-
+    <button type="submit" class="btn-login">Sign In</button>
+    
+    <div class="form-footer">
       <div class="forgot-link">
         <a href="/forgot-password">Forgot Password?</a>
       </div>
-    </form>
-  </div>
+      <div class="signup-prompt">
+        <p>Don't have an account? <a href="/signup">Sign Up</a></p>
+      </div>
+    </div>
+  </form>
+</div>
 
-</body>
-</html>
+<style>
+  main {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: calc(100vh - 150px);
+    padding: 40px 20px;
+    background-color: #f8f9fa;
+  }
+
+  .login-container {
+    background-color: #ffffff;
+    padding: 40px 30px;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+    width: 100%;
+    max-width: 450px;
+    border: 1px solid #eaeaea;
+  }
+
+  .login-container h2 {
+    text-align: center;
+    margin-bottom: 30px;
+    color: #2c3e50;
+    font-size: 28px;
+    font-weight: 600;
+  }
+
+  .error-message {
+    background-color: #ffebee;
+    color: #d32f2f;
+    padding: 12px;
+    border-radius: 6px;
+    margin-bottom: 20px;
+    text-align: center;
+    border-left: 4px solid #f44336;
+  }
+
+  .form-group {
+    margin-bottom: 22px;
+  }
+
+  label {
+    font-weight: 500;
+    margin-bottom: 8px;
+    display: block;
+    color: #333;
+    font-size: 15px;
+  }
+
+  .input-with-icon {
+    position: relative;
+  }
+
+  .input-with-icon i {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #90a4ae;
+  }
+
+  input {
+    width: 100%;
+    padding: 14px 14px 14px 40px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 15px;
+    transition: border-color 0.3s, box-shadow 0.3s;
+  }
+
+  input:focus {
+    border-color: #3498db;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.15);
+  }
+
+  .btn-login {
+    width: 100%;
+    padding: 14px;
+    background: linear-gradient(135deg, #3498db, #2980b9);
+    color: #fff;
+    font-weight: 600;
+    font-size: 16px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 10px;
+  }
+
+  .btn-login:hover {
+    background: linear-gradient(135deg, #2980b9, #1c638b);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+
+  .btn-login:active {
+    transform: translateY(1px);
+  }
+
+  .form-footer {
+    margin-top: 25px;
+    text-align: center;
+  }
+
+  .forgot-link {
+    margin-bottom: 15px;
+  }
+
+  .forgot-link a {
+    text-decoration: none;
+    color: #3498db;
+    font-weight: 500;
+    transition: color 0.3s;
+  }
+
+  .forgot-link a:hover {
+    color: #2980b9;
+    text-decoration: underline;
+  }
+
+  .signup-prompt p {
+    color: #555;
+    margin: 0;
+  }
+
+  .signup-prompt a {
+    color: #3498db;
+    font-weight: 600;
+    text-decoration: none;
+    transition: color 0.3s;
+  }
+
+  .signup-prompt a:hover {
+    color: #2980b9;
+    text-decoration: underline;
+  }
+
+  @media (max-width: 768px) {
+    .login-container {
+      padding: 30px 20px;
+    }
+  }
+</style>
+{% endblock %}
